@@ -116,7 +116,6 @@ class URLSchemeHandler
                 ga('send', 'pageview')
 
             @oldHash = window.location.hash
-            @reload = true
             console.log "handleSchemeChange reload --> "+@reload
 
 

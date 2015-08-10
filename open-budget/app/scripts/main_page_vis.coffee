@@ -136,7 +136,9 @@ define(['jquery','backbone', 'models', 'templates', 'bubble_chart'], ($, Backbon
                     addSubNodes: @addKids,
                     stateChange: (state) =>
                         if (state == "initial")
+                            @switchToggle(@prevToggle || 0)
                             @$bubbleContainer.find(".bubble-group-label").remove()
+                            @addBubbleLabels()
                             @$el.find("#grouping-kind").css("pointer-events", "").fadeTo(500, 1)
                             models.pageModel.URLSchemeHandlerInstance.removeAttribute(
                                 "focusOn", false
@@ -171,7 +173,7 @@ define(['jquery','backbone', 'models', 'templates', 'bubble_chart'], ($, Backbon
 
 
         events:
-            'click #grouping-kind .btn': 'switchToggle'
+            'click #grouping-kind .btn': 'toggleClicked'
             'click .compare-2014': 'compare_2014'
             # 'click .compare-2015': 'compare_2015_start'
             # 'click .compare-2015 .compare-year-start': 'compare_2015_start'
@@ -195,12 +197,14 @@ define(['jquery','backbone', 'models', 'templates', 'bubble_chart'], ($, Backbon
             @$el.find('.compare-2014,.compare-2015,.compare-year-start,.compare-year-end').toggleClass('active',false)
             @$el.find(selector).toggleClass('active',true)
 
-        switchToggle: (e) =>
+        toggleClicked: (e) =>
             d3.select(@el).selectAll(".bubbleTitle#{@toggle}")
                         .transition()
                         .style('opacity', 0)
-            console.log $(e.currentTarget).attr('data-toggle')
-            @toggle = parseInt($(e.currentTarget).attr('data-toggle'))
+            @switchToggle(parseInt($(e.currentTarget).attr('data-toggle')))
+
+        switchToggle: (toggle) ->
+            @toggle = toggle
             # Add URL attribute
             @model.URLSchemeHandlerInstance.addAttribute("toggle", @toggle, false)
 
@@ -244,6 +248,9 @@ define(['jquery','backbone', 'models', 'templates', 'bubble_chart'], ($, Backbon
                         orig: model.get('net_allocated')
                         rev:  model.get('net_revised')
                         onMoreInfo: @moreInfo
+                        click: () ->
+                            year = 2014
+                            window.location.hash = pageModel.URLSchemeHandlerInstance.linkToBudget(@id, year)
                         value: model.get('net_revised')
                         className: -> "child-bubble "+changeClass(this.orig,this.rev)+"_svg"
                         fill_color: null
@@ -283,6 +290,8 @@ define(['jquery','backbone', 'models', 'templates', 'bubble_chart'], ($, Backbon
                     center: null,
                     onMoreInfo: @moreInfo,
                     click: (d) =>
+                        @prevToggle = @toggle
+                        @switchToggle(0)
                         models.pageModel.URLSchemeHandlerInstance.addAttribute(
                             "focusOn", d.src.get("code"), false
                         )

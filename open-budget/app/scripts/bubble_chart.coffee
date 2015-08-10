@@ -467,8 +467,7 @@ define(['backbone', 'd3', 'd3-tip'], (Backbone, d3, d3tip) ->
         @renderLegend(maxValue, scaleFunction)
 
         actionButtons = [
-            {content: ">", class: "main-vis-back-button", location: {x: @width/4, y: @height/2}},
-            {content: "+", class: "main-vis-zoom-button", location: {x: @width/2, y: @height*3/4}}
+            {content: ">", class: "main-vis-back-button", location: {x: @width/4, y: @height/2}}
         ]
         @actionButtons = @vis.selectAll(".main-vis-action-buttons").data(actionButtons)
         @actionButtons.enter()
@@ -481,6 +480,7 @@ define(['backbone', 'd3', 'd3-tip'], (Backbone, d3, d3tip) ->
             .on("click", (d) =>
                 if d.class == "main-vis-back-button"
                     if typeof @options.stateChange == "function"
+                        @replaceCenteredNode(null)
                         @options.stateChange.call(null, "initial")
                         @vis.selectAll(".color-legend").transition().duration(DURATION).attrTween("transform",
                             (d, index, attribute) ->
@@ -515,7 +515,12 @@ define(['backbone', 'd3', 'd3-tip'], (Backbone, d3, d3tip) ->
               else
                   ""
             )
-          .on("click", @focusOnNode)
+          .on("click", (d) =>
+              if d.subNode?
+                  if d.click? then d.click()
+              else
+                  @focusOnNode(d)
+          )
           .on("mouseover", (d,i) -> that.show_details(d,i,this))
           .on("mouseout", (d,i) -> that.hide_details())
 
