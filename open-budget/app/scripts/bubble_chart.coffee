@@ -231,9 +231,11 @@ define(['backbone', 'd3', 'd3-tip'], (Backbone, d3, d3tip) ->
               if d.id.length >= 10 or d.subNode then return
               if typeof d.click == "function" then d.click.call(d, d)
               @options.stateChange.call(null, "centered")
+              ###
               @vis.selectAll(".color-legend").transition().duration(DURATION/2)
                 .attrTween("transform", (d, index, attribute) ->
                     d3.interpolateString("translate(0, 0)", "translate(-100, 0)"))
+              ###
 
           @replaceCenteredNode(d)
 
@@ -482,10 +484,12 @@ define(['backbone', 'd3', 'd3-tip'], (Backbone, d3, d3tip) ->
                     if typeof @options.stateChange == "function"
                         @replaceCenteredNode(null)
                         @options.stateChange.call(null, "initial")
+                        ###
                         @vis.selectAll(".color-legend").transition().duration(DURATION).attrTween("transform",
                             (d, index, attribute) ->
                                 return d3.interpolateString("translate(-100, 0)", "translate(0, 0)")
                         )
+                        ###
 
                     if @centerNodeQueue.length > 0
                         newCenterNode = @centerNodeQueue.splice(0, 1)[0]
